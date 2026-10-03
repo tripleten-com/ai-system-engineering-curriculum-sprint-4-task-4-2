@@ -1,0 +1,25 @@
+# Coldline - Task 4.2
+# File: submission.yaml
+# Component: Student answer sheet
+# Purpose: Record that this Task has no direct answer to record.
+# Interacts With: Submission schema and public verifier
+# Sprint/Task: Sprint 4 - Project 4 / Task 4.2
+# Concepts: Deterministic assessment, implementation as evidence
+# Tools: YAML
+
+# Keep answers: {} in submission.yaml; the sample shows the same empty mapping.
+# Complete the three files described in the Task contract.
+# Do not include secrets, personal data, or local absolute paths.
+
+# Task 4.2 — Step 1: Configure token verification
+# Fill in config/auth.yaml from the issuer's discovery document and
+# docs/security/access-policy.md; `poe token-check <fixture>` reads it.
+# Step 2: Protect the summary endpoint with least privilege
+# Apply the supplied require_access rule to get_exception in src/api/routes.py
+# with the role and scope the access policy grants; `poe auth-checks` shows the result.
+# Step 3: Prove every rejection with tests
+# Write the eight tests in tests/student/test_exception_access.py.
+# Source: docs/student/task-4-2-contract.md.
+# Your configuration, access rule, and tests provide the evidence for these Steps.
+# Keep this mapping empty; this Task has no direct-answer fields to complete.
+answers: {}

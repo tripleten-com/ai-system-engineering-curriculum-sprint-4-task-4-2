@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Coldline Task 4.2 public answer contract. This Task has no direct answer: the deliverable is the token verification settings in config/auth.yaml, the access rule on the exception summary route in src/api/routes.py, and the student's access tests in tests/student/test_exception_access.py. The automated checks exercise the running API against the supplied token fixtures and rerun the student's tests under supplied mutations, rather than reading a recorded claim. The mapping is required and must be empty, so an invented status or self-reported test result is rejected rather than accepted as evidence.",
+  "title": "Coldline Task 4.2 answers",
+  "description": "An intentionally empty answer mapping.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["answers"],
+  "properties": {
+    "answers": {
+      "description": "Empty by design. Add no field: the configuration, the access rule, and the tests are the evidence.",
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 0
+    }
+  }
+}
