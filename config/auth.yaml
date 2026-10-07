@@ -7,24 +7,25 @@
 # Concepts: OIDC discovery, JWKS, pinned algorithms, clock leeway
 # Tools: YAML
 
-# Step 1 of the Task: fill in every value and keep the five keys as they are. The API
-# image carries this file as it was when `poe start` built it, so run `poe start` again
-# after editing it. `poe token-check <fixture>` reads it directly, with no rebuild.
+# Never exported. Known-wrong variant "audience-is-issuer": the reference completion with
+# `audience` set to the issuer's URL, the lesson's named common mistake. The routes.py and
+# the student tests beside it are the reference's. With this file the verifier refuses
+# dispatcher-valid for its audience claim (401) and refuses gateway-valid, wrong-role, and
+# missing-scope for the same reason instead of 403, so in
+# tests/contract/test_exception_access.py exactly this set fails:
+# test_auth_config_audience_is_the_access_policy_audience,
+# test_dispatcher_valid_receives_200_with_the_stored_summary,
+# test_unauthorized_fixtures_receive_403[gateway-valid|wrong-role|missing-scope], and
+# test_each_rejection_test_asserts_the_exact_status_without_the_summary (under the
+# status-swapped mutation the three 403 tests receive 403 for a swapped authentication
+# failure and pass, which the row forbids). Every other row passes.
 
-# The `issuer` value of the issuer's discovery document (README.md lists its URL).
 issuer: "https://issuer.coldline.test"
 
-# The API audience in docs/security/access-policy.md: the name of the API a token is
-# for, not the party that signed it.
-audience: "coldline-api"
+audience: "https://issuer.coldline.test"
 
-# The `jwks_uri` value of the discovery document, as printed.
 jwks_url: "http://localhost:8180/.well-known/jwks.json"
 
-# A list holding only the `alg` the key set at jwks_url declares, for example
-# algorithms: ["<alg>"]. The verifier never trusts the algorithm a token names.
 algorithms: ["RS256"]
 
-# The allowance, in whole seconds, for clock differences between machines, inside the
-# range docs/security/access-policy.md allows.
 leeway_seconds: 30

@@ -19,16 +19,7 @@ from collections.abc import Awaitable, Callable
 from time import perf_counter
 from typing import Annotated
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    FastAPI,
-    HTTPException,
-    Query,
-    Request,
-    Response,
-    status,
-)
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, Response, status
 from opentelemetry import trace
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import BaseModel, ConfigDict, Field
@@ -284,11 +275,10 @@ def create_app(
     async def get_exception(
         exception_id: str,
         principal: Annotated[
-            Principal,
-            Depends(require_access(role="dispatcher", scope="exceptions:read")),
+            Principal, Depends(require_access(role="dispatcher", scope="exceptions:read"))
         ],
     ) -> ExceptionRecord:
-        """Return the durable state of one exception workflow to a granted dispatcher."""
+        """Return the durable state of one exception workflow to a dispatcher with read scope."""
         record = await repository.get(exception_id)
         if record is None:
             raise HTTPException(status_code=404, detail="exception not found")
