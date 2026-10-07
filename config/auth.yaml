@@ -12,19 +12,19 @@
 # after editing it. `poe token-check <fixture>` reads it directly, with no rebuild.
 
 # The `issuer` value of the issuer's discovery document (README.md lists its URL).
-issuer: ""
+issuer: "https://issuer.coldline.test"
 
 # The API audience in docs/security/access-policy.md: the name of the API a token is
 # for, not the party that signed it.
-audience: ""
+audience: "coldline-api"
 
 # The `jwks_uri` value of the discovery document, as printed.
-jwks_url: ""
+jwks_url: "http://localhost:8180/.well-known/jwks.json"
 
 # A list holding only the `alg` the key set at jwks_url declares, for example
 # algorithms: ["<alg>"]. The verifier never trusts the algorithm a token names.
-algorithms: []
+algorithms: ["RS256"]
 
 # The allowance, in whole seconds, for clock differences between machines, inside the
 # range docs/security/access-policy.md allows.
-leeway_seconds:
+leeway_seconds: 30

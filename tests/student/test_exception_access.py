@@ -82,24 +82,106 @@ def harness() -> AccessHarness:
 # Assert status 200, the exception id, and the stored summary in the response body.
 
 
+async def test_dispatcher_valid_reads_the_stored_summary(harness: AccessHarness) -> None:
+    """The one granted caller, a dispatcher token with `exceptions:read`, gets the summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("dispatcher-valid") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["exception_id"] == exception_id
+    assert body["summary"] == summary
+
+
 # --- Test 2 of 8: `bad-signature` is refused.
 # Request an exception with a stored summary; assert the exact status from Step 2 and that
 # the summary text is not in the response.
 
 
+async def test_bad_signature_is_refused_with_401(harness: AccessHarness) -> None:
+    """A signature the issuer's key set does not verify identifies nobody: 401, no summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("bad-signature") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 401
+    assert summary not in response.text
+
+
 # --- Test 3 of 8: `wrong-issuer` is refused.
+
+
+async def test_wrong_issuer_is_refused_with_401(harness: AccessHarness) -> None:
+    """A token from another issuer is not evidence about this API's caller: 401, no summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("wrong-issuer") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 401
+    assert summary not in response.text
 
 
 # --- Test 4 of 8: `wrong-audience` is refused.
 
 
+async def test_wrong_audience_is_refused_with_401(harness: AccessHarness) -> None:
+    """A token issued for another service is refused here: 401, no summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("wrong-audience") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 401
+    assert summary not in response.text
+
+
 # --- Test 5 of 8: `expired` is refused.
+
+
+async def test_expired_is_refused_with_401(harness: AccessHarness) -> None:
+    """A token past its `exp`, beyond the configured leeway, is refused: 401, no summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("expired") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 401
+    assert summary not in response.text
 
 
 # --- Test 6 of 8: `gateway-valid` is refused.
 
 
+async def test_gateway_valid_is_refused_with_403(harness: AccessHarness) -> None:
+    """A verified sensor gateway holds another job than reading summaries: 403, no summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("gateway-valid") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 403
+    assert summary not in response.text
+
+
 # --- Test 7 of 8: `wrong-role` is refused.
 
 
+async def test_wrong_role_is_refused_with_403(harness: AccessHarness) -> None:
+    """The right scope under a role the policy does not grant is refused: 403, no summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("wrong-role") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 403
+    assert summary not in response.text
+
+
 # --- Test 8 of 8: `missing-scope` is refused.
+
+
+async def test_missing_scope_is_refused_with_403(harness: AccessHarness) -> None:
+    """A dispatcher token issued without `exceptions:read` is refused: 403, no summary."""
+    exception_id, summary = harness.stored_exception()
+    async with harness.bearer_client("missing-scope") as client:
+        response = await client.get(f"/api/v1/exceptions/{exception_id}")
+
+    assert response.status_code == 403
+    assert summary not in response.text
