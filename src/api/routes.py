@@ -17,8 +17,9 @@ supplied; the public check compares the diff.
 
 from collections.abc import Awaitable, Callable
 from time import perf_counter
+from typing import Annotated
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, Response, status
 from opentelemetry import trace
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import BaseModel, ConfigDict, Field
@@ -27,7 +28,8 @@ from starlette.types import Lifespan
 from api.document_service import DocumentService, DocumentsUnavailable
 from api.experiment import TOP_K_LIMIT, ExperimentRetrieval
 from api.retrieval_workflow import RetrievalWorkflow
-from api.security.tokens import TokenVerifier
+from api.security.access import require_access
+from api.security.tokens import Principal, TokenVerifier
 from api.use_cases import (
     InRangeReading,
     QueueUnavailable,
@@ -270,8 +272,13 @@ def create_app(
     # form. The readings intake, procedure search, documents, corpus, health, version,
     # and metrics routes stay open as supplied.
     @app.get("/api/v1/exceptions/{exception_id}", response_model=ExceptionRecord)
-    async def get_exception(exception_id: str) -> ExceptionRecord:
-        """Return the durable state of one exception workflow."""
+    async def get_exception(
+        exception_id: str,
+        principal: Annotated[
+            Principal, Depends(require_access(role="dispatcher", scope="exceptions:read"))
+        ],
+    ) -> ExceptionRecord:
+        """Return the durable state of one exception workflow to a dispatcher with read scope."""
         record = await repository.get(exception_id)
         if record is None:
             raise HTTPException(status_code=404, detail="exception not found")
